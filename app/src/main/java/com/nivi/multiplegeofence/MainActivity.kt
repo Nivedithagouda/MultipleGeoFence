@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -48,11 +49,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private val geofenceAdapter = GeofenceAdapter(geofenceList)
     private lateinit var geofenceDataStore: GeofenceDataStore
 
-    private val geofenceCheckHandler = Handler()
+    val geofenceCheckHandler = Handler(Looper.getMainLooper())
     private val geofenceCheckRunnable = object : Runnable {
         override fun run() {
             startGeofence()
             geofenceCheckHandler.postDelayed(this, 60000) // Schedule next check after 1 minute
+//            geofenceCheckHandler.postDelayed(this, 300000)// Schedule next check after 5 minute
         }
     }
 

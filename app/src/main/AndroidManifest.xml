@@ -40,7 +40,9 @@
         </receiver>
         <service
             android:name=".ForegroundService"
-            tools:ignore="Instantiatable" />
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 
 </manifest>
