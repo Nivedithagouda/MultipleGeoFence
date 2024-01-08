@@ -21,7 +21,7 @@
         android:theme="@style/Theme.MultipleGeoFence"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,17 +31,16 @@
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAzzEKktLOssWPdYsmE2DMrqmkJdIW-x2Q" />
+            android:value="AIzaSyBBach7hwq7Y24aFo9j4SUWy92vAv1-f2E" />
         <meta-data
             android:name="com.google.android.gms.location.api.supported_preferred_update_interval_seconds"
             android:value="60" />
         <receiver
-            android:name=".GeofenceBroadcastReceiver">
+            android:name=".data.receiver.GeofenceBroadcastReceiver">
         </receiver>
         <service
-            android:name=".ForegroundService"
-            android:enabled="true"
-            android:exported="false" />
+            android:name=".data.service.ForegroundService"
+            tools:ignore="Instantiatable" />
 
     </application>
 

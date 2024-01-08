@@ -1,5 +1,5 @@
 // src/main/java/com/nivi/multiplegeofence/GeofenceAdapter.kt
-package com.nivi.multiplegeofence
+package com.nivi.multiplegeofence.ui
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.nivi.multiplegeofence.R
+import com.nivi.multiplegeofence.data.model.GeofenceItem
 
 class GeofenceAdapter(private val geofenceList: MutableList<GeofenceItem>) :
     RecyclerView.Adapter<GeofenceAdapter.ViewHolder>() {

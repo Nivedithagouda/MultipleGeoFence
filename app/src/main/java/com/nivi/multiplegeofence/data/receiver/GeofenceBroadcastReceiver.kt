@@ -1,5 +1,5 @@
 // src/main/java/com/nivi/multiplegeofence/GeofenceBroadcastReceiver.kt
-package com.nivi.multiplegeofence
+package com.nivi.multiplegeofence.data.receiver
 
 import android.Manifest
 import android.app.Notification
@@ -17,6 +17,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
+import com.nivi.multiplegeofence.R
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 

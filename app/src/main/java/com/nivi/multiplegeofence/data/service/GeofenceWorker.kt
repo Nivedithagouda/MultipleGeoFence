@@ -1,4 +1,4 @@
-package com.nivi.multiplegeofence
+package com.nivi.multiplegeofence.data.service
 
 // GeofenceWorker.kt
 
@@ -11,13 +11,13 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.google.android.gms.location.Geofence
+import com.nivi.multiplegeofence.R
 
 class GeofenceWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {

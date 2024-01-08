@@ -1,23 +1,14 @@
 // ForegroundService.kt
-package com.nivi.multiplegeofence
+package com.nivi.multiplegeofence.data.service
 
-import android.Manifest
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.work.*
-import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
-import com.nivi.multiplegeofence.GeofenceWorker
-import java.util.concurrent.TimeUnit
 import com.nivi.multiplegeofence.R
 
 class ForegroundService : Service() {
