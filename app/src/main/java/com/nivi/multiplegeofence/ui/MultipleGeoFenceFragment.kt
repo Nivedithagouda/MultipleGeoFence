@@ -4,11 +4,10 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Address
-import android.location.Geocoder
 import android.provider.Settings
 import android.net.Uri
 import android.os.Build
@@ -23,10 +22,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startForegroundService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -47,9 +44,10 @@ import com.nivi.multiplegeofence.data.model.GeofenceItem
 import com.nivi.multiplegeofence.data.preference.GeofenceDataStore
 import com.nivi.multiplegeofence.data.receiver.GeofenceBroadcastReceiver
 import com.nivi.multiplegeofence.data.service.ForegroundService
+import com.nivi.multiplegeofence.ui.utility.PermissionManager
+import com.nivi.multiplegeofence.ui.utility.getAddressDetails
 import kotlinx.coroutines.launch
-import java.io.IOException
-import java.util.Locale
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
@@ -64,10 +62,10 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_BACKGROUND_LOCATION
     )
-//    private val permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
     private val geofenceList = mutableListOf<GeofenceItem>()
     private val geofenceAdapter = GeofenceAdapter(geofenceList)
+    private val geofenceViewModel: GeofenceViewModel by viewModel()
     private lateinit var geofenceDataStore: GeofenceDataStore
 
     val geofenceCheckHandler = Handler(Looper.getMainLooper())
@@ -82,9 +80,6 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
     }
 
 
@@ -116,8 +111,8 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
 
     private fun loadGeofenceFromDataStore() {
         lifecycleScope.launch {
-            geofenceDataStore.getGeofence().collect { geofenceList ->
-                geofenceList?.let {
+            geofenceViewModel.geofenceList.collect { geofenceList ->
+                geofenceList.let {
                     for ((latitude, longitude, radius) in it) {
                         val latLng = LatLng(latitude, longitude)
                         createRadiusInputDialog(latLng, radius)
@@ -161,15 +156,6 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//
-//        // Move initialization or UI update code here
-//        if (checkPermission()) {
-//            map.isMyLocationEnabled = true
-//        }
-//    }
-
     private fun checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -198,6 +184,7 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
             map.isMyLocationEnabled = true
         }
     }
+
     private fun requestLocationPermission() {
         ActivityCompat.requestPermissions(
             requireActivity(),
@@ -219,8 +206,7 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
             // Geofence with the same LatLng already exists, do not add again
             return
         }
-
-        val address = getCompleteAddress(requireContext(),latLng.latitude, latLng.longitude)
+        val address= geofenceViewModel.getAddress(requireContext(),latLng.latitude,latLng.longitude)
         val markerOptions = MarkerOptions()
             .position(latLng)
             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
@@ -245,9 +231,8 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
                 geofenceItem?.let { it1 -> deleteGeofence(it1, latLng,radius) }
             }
         }
-        lifecycleScope.launch {
-            geofenceDataStore.saveGeofence(latLng.latitude, latLng.longitude,radius)
-        }
+        geofenceViewModel.saveGeofence(latLng.latitude,latLng.longitude,radius)
+
 
         geofenceItem?.let {
             geofenceList.add(it)
@@ -370,35 +355,12 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
 
         // Remove geofence from the list
         geofenceList.remove(geofenceItem)
-        lifecycleScope.launch {
-            geofenceDataStore.clearGeofence(latLng.latitude,latLng.longitude,radius)
-        }
+        geofenceViewModel.clearGeofence(latLng.latitude,latLng.longitude,radius)
 
         // Notify the adapter that the data set has changed
         geofenceAdapter.notifyDataSetChanged()
     }
 
-    fun getCompleteAddress(context: Context, latitude: Double, longitude: Double): String {
-        val geocoder = Geocoder(context, Locale.getDefault())
-        var result = "Unknown"
-
-        try {
-            val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
-            if (addresses != null && addresses.isNotEmpty()) {
-                val address: Address = addresses[0]
-                val addressStringBuilder = StringBuilder()
-
-                for (i in 0 until address.maxAddressLineIndex) {
-                    addressStringBuilder.append(address.getAddressLine(i)).append("\n")
-                }
-
-                result = address.subLocality
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return result
-    }
 
 
     private fun createRadiusInputDialog(latLng: LatLng, savedRadius: Double?) {
@@ -430,20 +392,14 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun showPermissionDeniedMessageOrNavigateToSettings() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Permission Denied")
-            .setMessage("Location permission is required for this app to function.")
-            .setPositiveButton("Open Settings") { _, _ -> openAppSettings() }
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-            .show()
+        PermissionManager.showPermissionDeniedDialog(
+            requireContext(),
+            DialogInterface.OnClickListener { _, _ -> PermissionManager.openAppSettings(requireContext()) }
+        )
     }
 
     private fun openAppSettings() {
-        val intent = Intent().apply {
-            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            data = Uri.fromParts("package", requireContext().packageName, null)
-        }
-        startActivity(intent)
+        PermissionManager.openAppSettings(requireContext())
     }
 
 }

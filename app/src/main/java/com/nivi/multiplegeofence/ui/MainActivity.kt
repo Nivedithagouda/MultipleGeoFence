@@ -1,21 +1,24 @@
 package com.nivi.multiplegeofence.ui
 
-
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.nivi.multiplegeofence.R
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var bottomNav : BottomNavigationView
+    private lateinit var bottomNav: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Initialize bottomNav by finding it in your layout
+        bottomNav = findViewById(R.id.bottomNav)
+
         loadFragment(MultipleGeoFenceFragment())
-        bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+
         bottomNav.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.fence -> {
@@ -26,10 +29,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    private fun loadFragment(fragment: Fragment){
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.container,fragment)
-        transaction.commit()
-    }
 
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, fragment)
+            .commit()
+    }
 }
