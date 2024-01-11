@@ -1,6 +1,7 @@
-package com.nivi.multiplegeofence.ui
+package com.nivi.multiplegeofence.ui.route
 
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +9,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.nivi.multiplegeofence.R
 import com.nivi.multiplegeofence.data.model.LatLngWithCustomer
+import com.nivi.multiplegeofence.ui.utility.getAddressDetails
 
-class CustomerInfoAdapter(private val customerList: List<LatLngWithCustomer>) :
+class CustomerInfoAdapter(val context: Context, private val customerList: List<LatLngWithCustomer>) :
     RecyclerView.Adapter<CustomerInfoAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -26,7 +28,7 @@ class CustomerInfoAdapter(private val customerList: List<LatLngWithCustomer>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val customer = customerList[position]
         holder.textViewCustomerName.text = customer.customerName
-        holder.textViewCustomerAddress.text = getAddressDetails(
+        holder.textViewCustomerAddress.text = getAddressDetails(context,
             customer.latLng.latitude,
             customer.latLng.longitude
         )
@@ -34,12 +36,5 @@ class CustomerInfoAdapter(private val customerList: List<LatLngWithCustomer>) :
 
     override fun getItemCount(): Int {
         return customerList.size
-    }
-
-    private fun getAddressDetails(latitude: Double, longitude: Double): String {
-        // Implement the logic to get the address details as needed
-        // You can use the existing logic from the RouteMapFragment for this purpose
-        // For simplicity, returning a dummy address
-        return "Address for $latitude, $longitude"
     }
 }

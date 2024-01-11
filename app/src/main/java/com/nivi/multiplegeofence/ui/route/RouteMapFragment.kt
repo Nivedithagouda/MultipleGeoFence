@@ -1,15 +1,15 @@
-package com.nivi.multiplegeofence.ui
+// RouteMapFragment.kt
+package com.nivi.multiplegeofence.ui.route
 
 import android.content.ContentValues.TAG
 import android.graphics.Color
-import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -26,24 +26,14 @@ import com.google.maps.model.TravelMode
 import com.google.maps.model.Unit
 import com.nivi.multiplegeofence.R
 import com.nivi.multiplegeofence.data.model.LatLngWithCustomer
-import java.util.Locale
+import com.nivi.multiplegeofence.ui.utility.getAddressDetails
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RouteMapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var mapView: MapView
     private lateinit var googleMap: GoogleMap
-    private lateinit var btnAddress: ImageView
-    val pointsWithCustomers = listOf(
-        LatLngWithCustomer("Customer 1", LatLng(12.9514, 77.6518)),
-        LatLngWithCustomer("Customer 2", LatLng(12.9279, 77.6271)),
-        LatLngWithCustomer("Customer 3", LatLng(12.9716, 77.6412)),
-        LatLngWithCustomer("Customer 4", LatLng(12.9270, 77.6742)),
-        LatLngWithCustomer("Customer 5", LatLng(12.9200, 77.6206)),
-        LatLngWithCustomer("Customer 6", LatLng(12.9569, 77.7011)),
-        LatLngWithCustomer("Customer 7", LatLng(12.9577, 77.5978)),
-        LatLngWithCustomer("Customer 8", LatLng(13.0104, 77.6518)),
-        LatLngWithCustomer("Customer 9", LatLng(12.9275, 77.5907)),
-    )
+    private val mapViewModel: RouteMapViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -54,63 +44,49 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
 
-        btnAddress = rootView.findViewById(R.id.btnShowCustomerInfo)
-        btnAddress.setOnClickListener {
+        rootView.findViewById<View>(R.id.btnShowCustomerInfo).setOnClickListener {
             showCustomerInfoBottomSheet()
         }
-
 
         return rootView
     }
 
-    private fun showCustomerInfoBottomSheet() {
-        val bottomSheetFragment = CustomerInfoBottomSheetFragment(pointsWithCustomers)
-        bottomSheetFragment.show(
-            requireActivity().supportFragmentManager,
-            bottomSheetFragment.tag
-        )
-    }
-
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
-
-        // Enable user's location on the map
         googleMap.isMyLocationEnabled = true
 
-        // Get the last known location and move the camera to that location
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location ->
                 if (location != null) {
-                    // Create a LatLng object for the current location
                     val currentLatLng = LatLng(location.latitude, location.longitude)
-
-                    // Move the camera to the current location
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
                 }
             }
             .addOnFailureListener { exception ->
-                // Handle failure to get the last known location
                 Log.e(TAG, "Error getting last known location: ${exception.message}")
             }
 
-        showRoute()
+        mapViewModel.pointsWithCustomers.observe(viewLifecycleOwner, Observer { points ->
+            // Handle the updated data
+            // Update the map or perform any other UI-related tasks
+            showRoute()
+        })
+
+        mapViewModel.fetchPointsWithCustomers()
     }
 
-
     private fun showRoute() {
-        // For simplicity, clear markers and polylines each time the button is clicked
-//        googleMap.clear()
+        googleMap.clear()
 
-        // Add markers for all points with customer names as title
+        val pointsWithCustomers = mapViewModel.pointsWithCustomers.value.orEmpty()
+
         for ((index, data) in pointsWithCustomers.withIndex()) {
-            val address = getAddressDetails(data.latLng.latitude, data.latLng.longitude)
+            val address = getAddressDetails(requireContext(), data.latLng.latitude, data.latLng.longitude)
             googleMap.addMarker(
                 MarkerOptions().position(data.latLng).title(data.customerName).snippet(address)
             )
         }
-
-        getDirections(pointsWithCustomers)
 
         focusCameraOnRouteDirection(pointsWithCustomers)
     }
@@ -119,34 +95,20 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
         if (pointsWithCustomers.size >= 2) {
             val origin = pointsWithCustomers.first().latLng
             val destination = pointsWithCustomers.last().latLng
-
-            // Calculate the midpoint between origin and destination
             val midpoint = LatLng(
                 (origin.latitude + destination.latitude) / 2,
                 (origin.longitude + destination.longitude) / 2
             )
-
-            // Move the camera to the midpoint
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(midpoint))
         }
-    }
 
-    private fun getAddressDetails(latitude: Double, longitude: Double): String {
-        val geocoder = Geocoder(requireContext(), Locale.getDefault())
-        val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-
-        return if (addresses!!.isNotEmpty()) {
-            val sublocality = addresses[0].subLocality ?: "Unknown Sublocality"
-            val locality = addresses[0].locality ?: "Unknown Locality"
-            "$sublocality, $locality"
-        } else {
-            "Unknown Address"
+        if (pointsWithCustomers.size >= 2) {
+            getDirections(pointsWithCustomers)
         }
     }
 
     private fun getDirections(pointsWithCustomers: List<LatLngWithCustomer>) {
         if (pointsWithCustomers.size < 2) {
-            // At least two points are required for directions
             return
         }
 
@@ -160,29 +122,39 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
         val apiKey = "AIzaSyDaWnMvfsvAN1cWaaP8rIsn3UkX7MOFVYQ" // Replace with your actual API key
         val geoApiContext = GeoApiContext.Builder().apiKey(apiKey).build()
 
-        val directionsResult: DirectionsResult = DirectionsApi.newRequest(geoApiContext)
-            .mode(TravelMode.DRIVING)
-            .origin("${origin.latitude},${origin.longitude}")
-            .destination("${destination.latitude},${destination.longitude}")
-            .waypoints(*waypoints)
-            .units(Unit.METRIC)
-            .await()
+        try {
+            val directionsResult: DirectionsResult = DirectionsApi.newRequest(geoApiContext)
+                .mode(TravelMode.DRIVING)
+                .origin("${origin.latitude},${origin.longitude}")
+                .destination("${destination.latitude},${destination.longitude}")
+                .waypoints(*waypoints)
+                .units(Unit.METRIC)
+                .await()
 
-        // Draw polyline for each step in the directions
-        for (route in directionsResult.routes) {
-            for (leg in route.legs) {
-                for (step in leg.steps) {
-                    val polylineOptions = PolylineOptions()
-                        .addAll(PolyUtil.decode(step.polyline.encodedPath))
-                        .color(Color.BLUE)
-                        .width(5f)
-                    googleMap.addPolyline(polylineOptions)
+            for (route in directionsResult.routes) {
+                for (leg in route.legs) {
+                    for (step in leg.steps) {
+                        val polylineOptions = PolylineOptions()
+                            .addAll(PolyUtil.decode(step.polyline.encodedPath))
+                            .color(Color.BLUE)
+                            .width(5f)
+                        googleMap.addPolyline(polylineOptions)
+                    }
                 }
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching directions: ${e.message}")
         }
     }
 
-    // Handle lifecycle of the MapView
+    private fun showCustomerInfoBottomSheet() {
+        val bottomSheetFragment = CustomerInfoBottomSheetFragment(mapViewModel.pointsWithCustomers.value.orEmpty())
+        bottomSheetFragment.show(
+            requireActivity().supportFragmentManager,
+            bottomSheetFragment.tag
+        )
+    }
+
     override fun onResume() {
         super.onResume()
         mapView.onResume()
@@ -202,5 +174,4 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
         super.onLowMemory()
         mapView.onLowMemory()
     }
-
 }

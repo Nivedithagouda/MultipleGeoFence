@@ -1,4 +1,4 @@
-package com.nivi.multiplegeofence.ui
+package com.nivi.multiplegeofence.ui.route
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.nivi.multiplegeofence.R
 import com.nivi.multiplegeofence.data.model.LatLngWithCustomer
+import com.nivi.multiplegeofence.ui.route.CustomerInfoAdapter
 
 class CustomerInfoBottomSheetFragment(private val customerList: List<LatLngWithCustomer>) :
     BottomSheetDialogFragment() {
@@ -21,7 +22,7 @@ class CustomerInfoBottomSheetFragment(private val customerList: List<LatLngWithC
 
         val recyclerView: RecyclerView = rootView.findViewById(R.id.recyclerViewCustomerInfo)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = CustomerInfoAdapter(customerList)
+        recyclerView.adapter = CustomerInfoAdapter(requireContext(),customerList)
 
         return rootView
     }

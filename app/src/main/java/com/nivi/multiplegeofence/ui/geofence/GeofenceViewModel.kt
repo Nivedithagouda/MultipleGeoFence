@@ -1,5 +1,5 @@
 // GeofenceViewModel.kt
-package com.nivi.multiplegeofence.ui
+package com.nivi.multiplegeofence.ui.geofence
 
 import android.content.Context
 import androidx.lifecycle.ViewModel

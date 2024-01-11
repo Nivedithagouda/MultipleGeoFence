@@ -1,5 +1,5 @@
 // src/main/java/com/nivi/multiplegeofence/GeofenceAdapter.kt
-package com.nivi.multiplegeofence.ui
+package com.nivi.multiplegeofence.ui.geofence
 
 import android.view.LayoutInflater
 import android.view.View

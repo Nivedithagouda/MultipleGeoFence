@@ -1,15 +1,12 @@
-package com.nivi.multiplegeofence.ui
+package com.nivi.multiplegeofence.ui.geofence
 
 import android.Manifest
 import android.app.AlertDialog
 import android.app.PendingIntent
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.provider.Settings
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -18,7 +15,6 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -45,7 +41,6 @@ import com.nivi.multiplegeofence.data.preference.GeofenceDataStore
 import com.nivi.multiplegeofence.data.receiver.GeofenceBroadcastReceiver
 import com.nivi.multiplegeofence.data.service.ForegroundService
 import com.nivi.multiplegeofence.ui.utility.PermissionManager
-import com.nivi.multiplegeofence.ui.utility.getAddressDetails
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
