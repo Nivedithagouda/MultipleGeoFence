@@ -10,16 +10,21 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/recyclerView" />
+        android:layout_alignParentBottom="true" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginBottom="5dp"
-        android:background="#80ffffff"
+
+    <ImageView
+        android:id="@+id/btnShowCustomerInfo"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="Show Customer Info"
+        android:clickable="true"
+        android:src="@drawable/list_image_icon"
         android:layout_alignParentBottom="true"
-        android:padding="8dp" />
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:focusable="true" />
 
 
 </RelativeLayout>

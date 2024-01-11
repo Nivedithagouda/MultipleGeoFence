@@ -40,6 +40,7 @@ import com.nivi.multiplegeofence.data.model.GeofenceItem
 import com.nivi.multiplegeofence.data.preference.GeofenceDataStore
 import com.nivi.multiplegeofence.data.receiver.GeofenceBroadcastReceiver
 import com.nivi.multiplegeofence.data.service.ForegroundService
+import com.nivi.multiplegeofence.ui.route.CustomerInfoBottomSheetFragment
 import com.nivi.multiplegeofence.ui.utility.PermissionManager
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -66,14 +67,9 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
     private val geofenceCheckRunnable = object : Runnable {
         override fun run() {
             startGeofence()
-            geofenceCheckHandler.postDelayed(this, 60000) // Schedule next check after 1 minute
+            geofenceCheckHandler.postDelayed(this, 3600000) // Schedule next check after 30 minute
 //            geofenceCheckHandler.postDelayed(this, 300000)// Schedule next check after 5 minute
         }
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
     }
 
 
@@ -87,14 +83,14 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
         // Initialize geofenceDataStore
         geofenceDataStore = GeofenceDataStore(requireContext())
 
-        recyclerView = view.findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = geofenceAdapter
 
 
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
+        view.findViewById<View>(R.id.btnShowCustomerInfo).setOnClickListener {
+            showCustomerInfoBottomSheet()
+        }
 
         return view
     }
@@ -385,6 +381,14 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
         PermissionManager.showPermissionDeniedDialog(
             requireContext(),
             DialogInterface.OnClickListener { _, _ -> PermissionManager.openAppSettings(requireContext()) }
+        )
+    }
+    private fun showCustomerInfoBottomSheet() {
+        val bottomSheetFragment = MultipleGeofenceListBottomSheetFragment(geofenceList)
+        bottomSheetFragment.isCancelable = false
+        bottomSheetFragment.show(
+            requireActivity().supportFragmentManager,
+            bottomSheetFragment.tag
         )
     }
 
