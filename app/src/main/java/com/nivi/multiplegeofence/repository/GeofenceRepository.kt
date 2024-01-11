@@ -1,7 +1,5 @@
-// GeofenceRepository.kt
 package com.nivi.multiplegeofence.repository
 
-import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import com.nivi.multiplegeofence.data.model.LatLngWithCustomer
 import com.nivi.multiplegeofence.data.preference.GeofenceDataStore
@@ -31,10 +29,8 @@ class GeofenceRepository(private val dataStore: GeofenceDataStore) {
         LatLngWithCustomer("Customer 7", LatLng(12.9577, 77.5978)),
         LatLngWithCustomer("Customer 8", LatLng(13.0104, 77.6518)),
         LatLngWithCustomer("Customer 9", LatLng(12.9275, 77.5907)),
-        // ... (add other customer data)
     )
 
-    // You can implement data fetching logic from API or database here
     fun getPointsWithCustomers(): List<LatLngWithCustomer> {
         return pointsWithCustomers
     }

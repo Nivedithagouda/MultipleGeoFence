@@ -1,4 +1,3 @@
-// GeofenceModule.kt
 package com.nivi.multiplegeofence.di
 
 import com.nivi.multiplegeofence.data.preference.GeofenceDataStore
