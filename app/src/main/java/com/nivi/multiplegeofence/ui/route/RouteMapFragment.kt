@@ -1,8 +1,6 @@
-// RouteMapFragment.kt
 package com.nivi.multiplegeofence.ui.route
 
 import android.content.ContentValues.TAG
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,13 +15,6 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PolylineOptions
-import com.google.maps.DirectionsApi
-import com.google.maps.GeoApiContext
-import com.google.maps.android.PolyUtil
-import com.google.maps.model.DirectionsResult
-import com.google.maps.model.TravelMode
-import com.google.maps.model.Unit
 import com.nivi.multiplegeofence.R
 import com.nivi.multiplegeofence.data.model.LatLngWithCustomer
 import com.nivi.multiplegeofence.ui.utility.getAddressDetails
@@ -77,82 +68,36 @@ class RouteMapFragment : Fragment(), OnMapReadyCallback {
     }
 
     private fun showRoute() {
-        googleMap.clear()
-
         val pointsWithCustomers = mapViewModel.pointsWithCustomers.value.orEmpty()
 
         for ((index, data) in pointsWithCustomers.withIndex()) {
-            val address = getAddressDetails(requireContext(), data.latLng.latitude, data.latLng.longitude)
+            val address =
+                getAddressDetails(requireContext(), data.latLng.latitude, data.latLng.longitude)
             googleMap.addMarker(
                 MarkerOptions().position(data.latLng).title(data.customerName).snippet(address)
             )
         }
 
         focusCameraOnRouteDirection(pointsWithCustomers)
+        getDirections(pointsWithCustomers)
     }
 
-    private fun focusCameraOnRouteDirection(pointsWithCustomers: List<LatLngWithCustomer>) {
-        if (pointsWithCustomers.size >= 2) {
-            val origin = pointsWithCustomers.first().latLng
-            val destination = pointsWithCustomers.last().latLng
-            val midpoint = LatLng(
-                (origin.latitude + destination.latitude) / 2,
-                (origin.longitude + destination.longitude) / 2
-            )
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(midpoint))
-        }
-
-        if (pointsWithCustomers.size >= 2) {
-            getDirections(pointsWithCustomers)
-        }
-    }
-
-    private fun getDirections(pointsWithCustomers: List<LatLngWithCustomer>) {
-        if (pointsWithCustomers.size < 2) {
-            return
-        }
-
-        val waypoints = pointsWithCustomers.subList(1, pointsWithCustomers.size - 1)
-            .map { "${it.latLng.latitude},${it.latLng.longitude}" }
-            .toTypedArray()
-
-        val origin = pointsWithCustomers.first().latLng
-        val destination = pointsWithCustomers.last().latLng
-
-        val apiKey = "AIzaSyDaWnMvfsvAN1cWaaP8rIsn3UkX7MOFVYQ" // Replace with your actual API key
-        val geoApiContext = GeoApiContext.Builder().apiKey(apiKey).build()
-
-        try {
-            val directionsResult: DirectionsResult = DirectionsApi.newRequest(geoApiContext)
-                .mode(TravelMode.DRIVING)
-                .origin("${origin.latitude},${origin.longitude}")
-                .destination("${destination.latitude},${destination.longitude}")
-                .waypoints(*waypoints)
-                .units(Unit.METRIC)
-                .await()
-
-            for (route in directionsResult.routes) {
-                for (leg in route.legs) {
-                    for (step in leg.steps) {
-                        val polylineOptions = PolylineOptions()
-                            .addAll(PolyUtil.decode(step.polyline.encodedPath))
-                            .color(Color.BLUE)
-                            .width(5f)
-                        googleMap.addPolyline(polylineOptions)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching directions: ${e.message}")
-        }
-    }
 
     private fun showCustomerInfoBottomSheet() {
-        val bottomSheetFragment = CustomerInfoBottomSheetFragment(mapViewModel.pointsWithCustomers.value.orEmpty())
+        val bottomSheetFragment =
+            CustomerInfoBottomSheetFragment(mapViewModel.pointsWithCustomers.value.orEmpty())
         bottomSheetFragment.show(
             requireActivity().supportFragmentManager,
             bottomSheetFragment.tag
         )
+    }
+
+    private fun focusCameraOnRouteDirection(pointsWithCustomers: List<LatLngWithCustomer>) {
+        mapViewModel.focusCameraOnRouteDirection(googleMap, pointsWithCustomers)
+    }
+
+    private fun getDirections(pointsWithCustomers: List<LatLngWithCustomer>) {
+        mapViewModel.getDirections(googleMap, pointsWithCustomers)
     }
 
     override fun onResume() {
