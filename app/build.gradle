@@ -42,10 +42,17 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'com.google.android.gms:play-services-maps:18.2.0' // Add this line
-    implementation 'com.google.android.gms:play-services-location:21.0.1' // Add this line
     implementation "androidx.work:work-runtime-ktx:2.8.1"
     implementation 'androidx.hilt:hilt-work:1.0.0'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
+    implementation "io.insert-koin:koin-android:3.3.2"
+    //geocode
+    implementation 'com.google.android.gms:play-services-location:17.1.0'
+
+
+
 
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
     implementation 'com.google.maps:google-maps-services:0.17.0'
