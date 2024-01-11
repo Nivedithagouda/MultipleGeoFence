@@ -52,7 +52,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
-    private lateinit var buttonStartGeofence: Button
     private lateinit var recyclerView: RecyclerView
 
     private val GEOFENCE_RADIUS = 100.0f
@@ -93,14 +92,10 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
         // Initialize geofenceDataStore
         geofenceDataStore = GeofenceDataStore(requireContext())
 
-        buttonStartGeofence = view.findViewById(R.id.buttonStartGeofence)
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = geofenceAdapter
 
-        buttonStartGeofence.setOnClickListener {
-            startGeofence()
-        }
 
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
@@ -232,6 +227,7 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
             }
         }
         geofenceViewModel.saveGeofence(latLng.latitude,latLng.longitude,radius)
+        startGeofence()
 
 
         geofenceItem?.let {
@@ -396,10 +392,6 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
             requireContext(),
             DialogInterface.OnClickListener { _, _ -> PermissionManager.openAppSettings(requireContext()) }
         )
-    }
-
-    private fun openAppSettings() {
-        PermissionManager.openAppSettings(requireContext())
     }
 
 }

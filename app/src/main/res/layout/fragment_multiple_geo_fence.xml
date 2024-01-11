@@ -16,18 +16,10 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:layout_above="@+id/buttonStartGeofence"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="5dp"
         android:background="#80ffffff"
+        android:layout_alignParentBottom="true"
         android:padding="8dp" />
 
-    <Button
-        android:id="@+id/buttonStartGeofence"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:text="Start Geofence" />
 
 </RelativeLayout>
