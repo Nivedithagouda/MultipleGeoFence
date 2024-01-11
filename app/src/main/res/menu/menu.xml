@@ -5,7 +5,7 @@
         android:icon="@drawable/fence"
         android:title="Geofence" />
     <item
-        android:id="@+id/Route"
+        android:id="@+id/route"
         android:icon="@drawable/route"
         android:title="Route" />
 </menu>

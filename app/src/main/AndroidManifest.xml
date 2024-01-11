@@ -31,7 +31,7 @@
         </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBBach7hwq7Y24aFo9j4SUWy92vAv1-f2E" />
+            android:value="AIzaSyDaWnMvfsvAN1cWaaP8rIsn3UkX7MOFVYQ" />
         <meta-data
             android:name="com.google.android.gms.location.api.supported_preferred_update_interval_seconds"
             android:value="60" />
