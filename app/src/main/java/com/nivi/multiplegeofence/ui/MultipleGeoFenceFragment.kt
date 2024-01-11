@@ -191,7 +191,7 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
         AlertDialog.Builder(requireContext())
             .setTitle("Location Permission Required")
             .setMessage("This app requires location permission to function properly.")
-            .setPositiveButton("OK") { _, _ -> requestLocationPermission() }
+            .setPositiveButton("OK") { _, _ ->PermissionManager.openAppSettings(requireContext()) }
             .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
             .show()
     }
@@ -227,8 +227,6 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
             }
         }
         geofenceViewModel.saveGeofence(latLng.latitude,latLng.longitude,radius)
-        startGeofence()
-
 
         geofenceItem?.let {
             geofenceList.add(it)
@@ -376,6 +374,7 @@ class MultipleGeoFenceFragment : Fragment(), OnMapReadyCallback {
                     if (radius != null) {
                         // Valid radius entered by the user
                         addGeofenceMarker(latLng, radius)
+                        startGeofence()
                     } else {
                         Toast.makeText(requireContext(), "Invalid radius entered", Toast.LENGTH_SHORT).show()
                     }
