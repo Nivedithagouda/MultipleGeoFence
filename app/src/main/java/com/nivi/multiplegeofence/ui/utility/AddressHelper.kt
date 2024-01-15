@@ -1,6 +1,7 @@
 package com.nivi.multiplegeofence.ui.utility
 
 import android.content.Context
+import android.location.Address
 import android.location.Geocoder
 import java.util.*
 
@@ -20,7 +21,27 @@ fun getAddressDetails(context: Context, latitude: Double, longitude: Double): St
         e.printStackTrace()
         "Error obtaining address"
     }
+
 }
+
+fun getLatLngFromAddress(context: Context, address: String): Pair<Double, Double>? {
+    return try {
+        val geocoder = Geocoder(context, Locale.getDefault())
+        val addresses: List<Address>? = geocoder.getFromLocationName(address, 1)
+
+        if (addresses != null && addresses.isNotEmpty()) {
+            val latitude = addresses[0].latitude
+            val longitude = addresses[0].longitude
+            Pair(latitude, longitude)
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 
 
 
